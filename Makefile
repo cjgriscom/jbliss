@@ -56,7 +56,7 @@ WRAPPER_DIR = ./src-wrapper
 WRAPPER_SRCS += $(WRAPPER_DIR)/fi_tkk_ics_jbliss_Graph.cc
 #WRAPPER_SRCS += $(WRAPPER_DIR)/jbliss_Digraph.cc
 WRAPPER_OBJS = $(addsuffix .o, $(basename $(WRAPPER_SRCS)))
-WRAPPER_CC ?= g++
+WRAPPER_CC ?= $(BLISS_CC)
 WRAPPER_CCFLAGS ?= -O3 -Wall $(PIC_FLAG)
 WRAPPER_INCLUDES = $(JNI_INCLUDE) -I$(BLISS_DIR)
 
@@ -76,13 +76,11 @@ gmp:    BLISS_CCFLAGS += -DBLISS_USE_GMP
 $(WRAPPER_DIR)/%.o: $(WRAPPER_DIR)/%.cc
 	$(WRAPPER_CC) $(WRAPPER_CCFLAGS) $(WRAPPER_INCLUDES) -c -o $@ $<
 
-.cc.o: $(BLISS_SRCS)
-	$(BLISS_CC) $(BLISS_CCFLAGS) -c -o $@ $<
+$(BLISS_DIR)/%.o: $(BLISS_DIR)/%.cc
+	$(BLISS_CC) $(BLISS_CCFLAGS) -I$(BLISS_DIR) -c -o $@ $<
 
 
-bliss: ./bliss-0.50.zip
-	rm -rf ./bliss-0.50
-	unzip bliss-0.50.zip
+bliss: # nothing
 
 headers: $(JAVA_CLASSFILES)
 	#javah -jni -d $(WRAPPER_DIR) $(CLASSPATHOPT) fi.tkk.ics.jbliss.Graph
@@ -102,7 +100,7 @@ doc: $(JAVA_SRCFILES)
 clean:
 	rm -f $(JAVA_CLASSFILES)
 	rm -f $(WRAPPER_OBJS)
-	rm -rf ./bliss-0.50
+	rm -f bliss-0.50/*.o
 	rm -f lib/jbliss.jar
 	rm -f lib/libjbliss.so lib/libjbliss.dll lib/libjbliss.a
 

@@ -2,17 +2,33 @@
 # Modify these two flags according to your system
 #
 # The directory where jni.h is to be found
-JNI_H_PATH = /usr/lib/jvm/java-8-jdk/include
+JNI_H_PATH ?= /usr/lib/jvm/java-8-jdk/include
 #JNI_H_PATH = /usr/lib/jvm/java-6-sun-1.6.0.17/include/
 # Where jni_md.h is to be found
-JNI_MD_H_PATH = /usr/lib/jvm/java-8-jdk/include/linux
+JNI_MD_H_PATH ?= /usr/lib/jvm/java-8-jdk/include/linux
 #JNI_MD_H_PATH = /usr/lib/jvm/java-6-sun-1.6.0.17/include/linux
 
 
 JNI_INCLUDE = -I$(JNI_H_PATH) -I$(JNI_MD_H_PATH)
 
+# Target platform selection ("native" or "windows")
+TARGET_OS ?= native
+
+PIC_FLAG ?= -fPIC
+
+ifeq ($(TARGET_OS),windows)
+PIC_FLAG :=
+SHARED_LIB_EXT ?= dll
+SHARED_LDFLAGS ?= -shared -Wl,--out-implib,lib/libjbliss.a
+else
+SHARED_LIB_EXT ?= so
+SHARED_LDFLAGS ?= -shared -Wl,-soname,libjbliss.$(SHARED_LIB_EXT)
+endif
+
+LIB_OUTPUT ?= lib/libjbliss.$(SHARED_LIB_EXT)
+
 # Where the true bliss is to be found
-BLISS_DIR = ./bliss-0.50
+BLISS_DIR ?= ./bliss-0.50
 # bliss sources, objects, and compiler options
 BLISS_SRCS += $(BLISS_DIR)/graph.cc
 BLISS_SRCS += $(BLISS_DIR)/partition.cc
@@ -21,8 +37,8 @@ BLISS_SRCS += $(BLISS_DIR)/uintseqhash.cc
 BLISS_SRCS += $(BLISS_DIR)/heap.cc
 BLISS_SRCS += $(BLISS_DIR)/timer.cc
 BLISS_OBJS = $(addsuffix .o, $(basename $(BLISS_SRCS)))
-BLISS_CC = g++
-BLISS_CCFLAGS = -O3 -Wall --pedantic -fPIC
+BLISS_CC ?= g++
+BLISS_CCFLAGS ?= -O3 -Wall --pedantic $(PIC_FLAG)
 
 #
 JAVA_SRCDIR = ./src
@@ -40,8 +56,8 @@ WRAPPER_DIR = ./src-wrapper
 WRAPPER_SRCS += $(WRAPPER_DIR)/fi_tkk_ics_jbliss_Graph.cc
 #WRAPPER_SRCS += $(WRAPPER_DIR)/jbliss_Digraph.cc
 WRAPPER_OBJS = $(addsuffix .o, $(basename $(WRAPPER_SRCS)))
-WRAPPER_CC = g++
-WRAPPER_CCFLAGS = -O3 -Wall -fPIC
+WRAPPER_CC ?= g++
+WRAPPER_CCFLAGS ?= -O3 -Wall $(PIC_FLAG)
 WRAPPER_INCLUDES = $(JNI_INCLUDE) -I$(BLISS_DIR)
 
 #
@@ -75,7 +91,8 @@ jar: $(JAVA_CLASSFILES)
 	cd $(JAVA_SRCDIR); jar cf ../lib/jbliss.jar $(JAVA_PREFIX)/*.class
 
 lib: bliss $(BLISS_OBJS) headers $(WRAPPER_OBJS)
-	$(WRAPPER_CC) $(JNI_INCLUDE) -I$(BLISS_DIR) -shared -o lib/libjbliss.so $(BLISS_OBJS) $(WRAPPER_OBJS) $(LIBS)
+	@mkdir -p lib
+	$(WRAPPER_CC) $(WRAPPER_CCFLAGS) $(WRAPPER_INCLUDES) $(SHARED_LDFLAGS) -o $(LIB_OUTPUT) $(BLISS_OBJS) $(WRAPPER_OBJS) $(LIBS)
 
 jbliss: lib JBliss.class
 
@@ -87,5 +104,5 @@ clean:
 	rm -f $(WRAPPER_OBJS)
 	rm -rf ./bliss-0.50
 	rm -f lib/jbliss.jar
-	rm -f lib/libjbliss.so
+	rm -f lib/libjbliss.so lib/libjbliss.dll lib/libjbliss.a
 

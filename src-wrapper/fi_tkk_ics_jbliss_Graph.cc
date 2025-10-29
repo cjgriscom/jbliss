@@ -1,21 +1,17 @@
 #include <jni.h>
 #include <stdio.h>
+#include <stdint.h>
 #include "graph.hh"
 #include "fi_tkk_ics_jbliss_Graph.h"
 
 static bliss::Graph *_j2c(const jlong j_ptr)
 {
-  bliss::Graph *c_ptr;
-  c_ptr = (bliss::Graph *)j_ptr;
-  //c_ptr = *(bliss::Graph **)&j_ptr;
-  return c_ptr;
+  return reinterpret_cast<bliss::Graph *>(static_cast<intptr_t>(j_ptr));
 }
 
 static jlong _c2j(bliss::Graph * const c_ptr)
 {
-  long j_ptr = (long)c_ptr;
-  //long j_ptr = *(bliss::Graph **)&j_ptr = c_ptr;
-  return j_ptr;
+  return static_cast<jlong>(reinterpret_cast<intptr_t>(c_ptr));
 }
 
 

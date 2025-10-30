@@ -18,14 +18,16 @@ PIC_FLAG ?= -fPIC
 
 ifeq ($(TARGET_OS),windows)
 PIC_FLAG :=
+SHARED_LIB_NAME ?= jbliss
 SHARED_LIB_EXT ?= dll
-SHARED_LDFLAGS ?= -shared -Wl,--out-implib,lib/libjbliss.a
+SHARED_LDFLAGS ?= -shared -Wl,--out-implib,lib/$(SHARED_LIB_NAME).a
 else
+SHARED_LIB_NAME ?= libjbliss
 SHARED_LIB_EXT ?= so
-SHARED_LDFLAGS ?= -shared -Wl,-soname,libjbliss.$(SHARED_LIB_EXT)
+SHARED_LDFLAGS ?= -shared -Wl,-soname,$(SHARED_LIB_NAME).$(SHARED_LIB_EXT)
 endif
 
-LIB_OUTPUT ?= lib/libjbliss.$(SHARED_LIB_EXT)
+LIB_OUTPUT ?= lib/$(SHARED_LIB_NAME).$(SHARED_LIB_EXT)
 
 # Where the true bliss is to be found
 BLISS_DIR ?= ./bliss
@@ -108,5 +110,5 @@ clean:
 	rm -f $(WRAPPER_OBJS)
 	rm -f $(BLISS_DIR)/*.o
 	rm -f lib/jbliss.jar
-	rm -f lib/libjbliss.so lib/libjbliss.dll lib/libjbliss.a
+	rm -f lib/$(SHARED_LIB_NAME).$(SHARED_LIB_EXT) lib/$(SHARED_LIB_NAME).a
 

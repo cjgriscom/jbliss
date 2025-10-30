@@ -28,7 +28,7 @@ endif
 LIB_OUTPUT ?= lib/libjbliss.$(SHARED_LIB_EXT)
 
 # Where the true bliss is to be found
-BLISS_DIR ?= ./bliss-0.50
+BLISS_DIR ?= ./bliss
 # bliss sources, objects, and compiler options
 BLISS_SRCS += $(BLISS_DIR)/graph.cc
 BLISS_SRCS += $(BLISS_DIR)/partition.cc
@@ -100,7 +100,7 @@ doc: $(JAVA_SRCFILES)
 clean:
 	rm -f $(JAVA_CLASSFILES)
 	rm -f $(WRAPPER_OBJS)
-	rm -f bliss-0.50/*.o
+	rm -f $(BLISS_DIR)/*.o
 	rm -f lib/jbliss.jar
 	rm -f lib/libjbliss.so lib/libjbliss.dll lib/libjbliss.a
 

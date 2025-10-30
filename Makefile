@@ -30,12 +30,14 @@ LIB_OUTPUT ?= lib/libjbliss.$(SHARED_LIB_EXT)
 # Where the true bliss is to be found
 BLISS_DIR ?= ./bliss
 # bliss sources, objects, and compiler options
+BLISS_SRCS += $(BLISS_DIR)/defs.cc
 BLISS_SRCS += $(BLISS_DIR)/graph.cc
 BLISS_SRCS += $(BLISS_DIR)/partition.cc
 BLISS_SRCS += $(BLISS_DIR)/orbit.cc
 BLISS_SRCS += $(BLISS_DIR)/uintseqhash.cc
 BLISS_SRCS += $(BLISS_DIR)/heap.cc
 BLISS_SRCS += $(BLISS_DIR)/timer.cc
+BLISS_SRCS += $(BLISS_DIR)/utils.cc
 BLISS_OBJS = $(addsuffix .o, $(basename $(BLISS_SRCS)))
 BLISS_CC ?= g++
 BLISS_CCFLAGS ?= -O3 -Wall --pedantic $(PIC_FLAG)

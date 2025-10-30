@@ -39,6 +39,7 @@ BLISS_SRCS += $(BLISS_DIR)/heap.cc
 BLISS_SRCS += $(BLISS_DIR)/timer.cc
 BLISS_SRCS += $(BLISS_DIR)/utils.cc
 BLISS_OBJS = $(addsuffix .o, $(basename $(BLISS_SRCS)))
+STRIP ?= strip
 BLISS_CC ?= g++
 BLISS_CCFLAGS ?= -O3 -Wall --pedantic $(PIC_FLAG)
 
@@ -65,7 +66,7 @@ WRAPPER_INCLUDES = $(JNI_INCLUDE) -I$(BLISS_DIR)
 #
 CLASSPATHOPT = -classpath src
 
-all:: lib jar doc
+all:: lib strip jar doc
 
 gmp:    LIBS += -lgmp
 gmp:    BLISS_CCFLAGS += -DBLISS_USE_GMP
@@ -93,6 +94,9 @@ jar: $(JAVA_CLASSFILES)
 lib: bliss $(BLISS_OBJS) headers $(WRAPPER_OBJS)
 	@mkdir -p lib
 	$(WRAPPER_CC) $(WRAPPER_CCFLAGS) $(WRAPPER_INCLUDES) $(SHARED_LDFLAGS) -o $(LIB_OUTPUT) $(BLISS_OBJS) $(WRAPPER_OBJS) $(LIBS)
+
+strip: 
+	$(STRIP) --strip-unneeded $(LIB_OUTPUT)
 
 jbliss: lib JBliss.class
 
